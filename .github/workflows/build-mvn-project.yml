@@ -6,6 +6,8 @@ on:
 jobs:
   build-mvn-project:
     runs-on: ubuntu-latest
+    env:
+      ZITADEL_INIT_DIR: ${{ runner.temp }}/zitadel-init
     steps:
       - name: Checkout
         uses: actions/checkout@v4

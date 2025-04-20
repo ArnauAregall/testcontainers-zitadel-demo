@@ -6,7 +6,7 @@ services:
       - "zitadel"
     command: 'start-from-init --tlsMode disabled --masterkey "MasterkeyNeedsToHave32Characters" --config /zitadel-config.yaml --config /zitadel-secrets.yaml --steps /zitadel-init-steps.yaml'
     volumes:
-      - "/tmp/zitadel-init:/zitadel-init"
+      - "${ZITADEL_INIT_DIR:-/tmp/zitadel-init}:/zitadel-init"
       - "./zitadel/zitadel-config.yaml:/zitadel-config.yaml"
       - "./zitadel/zitadel-secrets.yaml:/zitadel-secrets.yaml"
       - "./zitadel/zitadel-init-steps.yaml:/zitadel-init-steps.yaml"
