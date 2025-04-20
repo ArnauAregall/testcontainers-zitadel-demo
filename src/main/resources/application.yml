@@ -1,0 +1,8 @@
+app:
+  zitadel:
+    base-url: http://localhost:8080
+    authorization-header: 'Bearer asdfg12345gjhkhogierithen_asdfg'
+
+spring:
+  application:
+    name: testcontainers-zitadel-demo

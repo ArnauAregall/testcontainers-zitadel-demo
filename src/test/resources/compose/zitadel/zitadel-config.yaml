@@ -1,0 +1,22 @@
+# All possible options and their defaults: https://github.com/zitadel/zitadel/blob/main/cmd/defaults.yaml
+Log:
+  Level: 'info'
+
+# Make ZITADEL accessible over HTTP, not HTTPS
+ExternalSecure: false
+
+# TLS disabled for internal /app/zitadel ready healthcheck
+TLS:
+  Enabled: false
+
+Database:
+  postgres:
+    Host: 'zitadel-db'
+    Port: 5432
+    Database: zitadel
+    User:
+      SSL:
+        Mode: 'disable'
+    Admin:
+      SSL:
+        Mode: 'disable'

@@ -1,0 +1,37 @@
+services:
+  zitadel:
+    image: ghcr.io/zitadel/zitadel:v3.0.0-rc.1
+    restart: always
+    networks:
+      - "zitadel"
+    command: 'start-from-init --tlsMode disabled --masterkey "MasterkeyNeedsToHave32Characters" --config /zitadel-config.yaml --config /zitadel-secrets.yaml --steps /zitadel-init-steps.yaml'
+    volumes:
+      - "/tmp/zitadel-init:/zitadel-init"
+      - "./zitadel/zitadel-config.yaml:/zitadel-config.yaml"
+      - "./zitadel/zitadel-secrets.yaml:/zitadel-secrets.yaml"
+      - "./zitadel/zitadel-init-steps.yaml:/zitadel-init-steps.yaml"
+    depends_on:
+      - zitadel-db
+    healthcheck:
+      test: ["CMD", "/app/zitadel", "ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  zitadel-db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: 'root'
+      POSTGRES_PASSWORD: 'postgres'
+    networks:
+      - 'zitadel'
+    volumes:
+      - 'zitadel_db_data:/var/lib/postgresql/data:rw'
+
+networks:
+  zitadel:
+
+volumes:
+  zitadel_db_data:

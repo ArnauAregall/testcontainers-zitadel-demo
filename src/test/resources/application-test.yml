@@ -1,0 +1,13 @@
+app:
+  zitadel:
+    base-url: 'http://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'
+    authorization-header: 'Bearer ${testcontainers.zitadel.admin-pat}'
+
+spring:
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  level:
+    tech.aregall: debug
