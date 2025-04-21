@@ -79,7 +79,6 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
 
                         final File dir = new File(patDir);
                         dir.mkdirs();
-                        dir.setReadable(true, false);
                         dir.setWritable(true, false);
                         return patDir;
                     } catch (URISyntaxException e) {
