@@ -32,7 +32,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
     private static final ComposeContainer CONTAINER = new ComposeContainer(new File("src/test/resources/compose/compose-test.yml"))
             .withExposedService("zitadel-db", 5432)
             .withExposedService("zitadel", 8080,
-                    Wait.forHttp("/debug/healthz").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(5)))
+                    Wait.forHttp("/debug/healthz").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(10)))
             .withLogConsumer("zitadel", new Slf4jLogConsumer(getLogger("zitadel-container")));
 
     @Override
