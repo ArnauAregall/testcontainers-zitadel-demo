@@ -1,6 +1,6 @@
 # All possible options and their defaults: https://github.com/zitadel/zitadel/blob/main/cmd/setup/steps.yaml
 FirstInstance:
-  PatPath: '/zitadel-init/zitadel-admin-sa.pat'
+  PatPath: '/zitadel-admin-pat-dir/zitadel-admin-sa.pat'
   InstanceName: 'Testcontainers ZITADEL'
   Org:
     Machine:

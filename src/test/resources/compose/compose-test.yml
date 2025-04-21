@@ -6,7 +6,8 @@ services:
       - "zitadel"
     command: 'start-from-init --tlsMode disabled --masterkey "MasterkeyNeedsToHave32Characters" --config /zitadel-config.yaml --config /zitadel-secrets.yaml --steps /zitadel-init-steps.yaml'
     volumes:
-      - "${ZITADEL_INIT_DIR:-/tmp/zitadel-init}:/zitadel-init"
+      # Mount the directory where the PAT file will be created, accessible from the host to read it back
+      - "${ZITADEL_ADMIN_PAT_DIR}:/zitadel-admin-pat-dir"
       - "./zitadel/zitadel-config.yaml:/zitadel-config.yaml"
       - "./zitadel/zitadel-secrets.yaml:/zitadel-secrets.yaml"
       - "./zitadel/zitadel-init-steps.yaml:/zitadel-init-steps.yaml"

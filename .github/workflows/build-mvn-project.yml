@@ -17,12 +17,5 @@ jobs:
           java-version: 21
           cache: maven
 
-      - name: Set up ZITADEL init dir
-        id: set-init-dir
-        run: echo "ZITADEL_INIT_DIR=${RUNNER_TEMP}/zitadel-init" >> $GITHUB_ENV
-
-      - name: Create ZITADEL init dir
-        run: mkdir -p "$ZITADEL_INIT_DIR"
-
       - name: Build with Maven wrapper
         run: ./mvnw clean verify

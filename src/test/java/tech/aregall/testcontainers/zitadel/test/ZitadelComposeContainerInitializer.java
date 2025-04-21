@@ -11,33 +11,41 @@ import org.testcontainers.junit.jupiter.Container;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.testcontainers.shaded.org.apache.commons.io.FileUtils.getFile;
 import static org.testcontainers.shaded.org.apache.commons.io.FileUtils.readFileToString;
 
 class ZitadelComposeContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    private static final Logger log = getLogger(ZitadelComposeContainerInitializer.class);
+    private static final String ENV_ZITADEL_ADMIN_PAT_DIR = "ZITADEL_ADMIN_PAT_DIR";
+    private static final Logger LOGGER = getLogger(ZitadelComposeContainerInitializer.class);
 
     @Container
-    public static ComposeContainer container = new ComposeContainer(new File("src/test/resources/compose/compose-test.yml"))
+    private static final ComposeContainer CONTAINER = new ComposeContainer(new File("src/test/resources/compose/compose-test.yml"))
             .withExposedService("zitadel-db", 5432)
             .withExposedService("zitadel", 8080,
-                    Wait.forHttp("/healthz").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(5)))
+                    Wait.forHttp("/debug/healthz").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(5)))
             .withLogConsumer("zitadel", new Slf4jLogConsumer(getLogger("zitadel-container")));
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        log.debug("Starting Zitadel compose container");
-        container.start();
+        final String zitadelAdminPatDir = getZitadelAdminPatDir();
+        CONTAINER.withEnv(ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir);
 
-        final String zitadelHost = container.getServiceHost("zitadel", 8080);
-        final Integer zitadelPort = container.getServicePort("zitadel", 8080);
-        final String adminPat = readZitadelAdminPat();
+        LOGGER.debug("Starting Zitadel compose container, admin PAT directory: {}", zitadelAdminPatDir);
+        CONTAINER.start();
+
+        final String zitadelHost = CONTAINER.getServiceHost("zitadel", 8080);
+        final Integer zitadelPort = CONTAINER.getServicePort("zitadel", 8080);
+        final String adminPat = readZitadelAdminPat(zitadelAdminPatDir);
 
         final Map<String, String> properties = Map.of(
                 "testcontainers.zitadel.host", zitadelHost,
@@ -45,26 +53,47 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
                 "testcontainers.zitadel.admin-pat", adminPat
         );
 
-        log.debug("Zitadel properties: {}", properties);
+        LOGGER.debug("Zitadel properties: {}", properties);
 
         TestPropertyValues.of(properties).applyTo(applicationContext.getEnvironment());
     }
 
-    private static String readZitadelAdminPat() {
-        try {
-            return readFileToString(getPatFile(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            log.error("Error reading Zitadel PAT file", e);
-            throw new RuntimeException(e);
-        }
+    /**
+     * Get the directory where the admin PAT file is stored.
+     * If the environment variable {@code ZITADEL_ADMIN_PAT_DIR} is set, it will be used.
+     * Otherwise, it will be created in the same directory as the test resources.
+     * This directory is mounted in the container as a volume. See {@code compose-test.yml}.
+     * @return the directory where the admin PAT file is stored.
+     */
+    private static String getZitadelAdminPatDir() {
+        return Optional.ofNullable(System.getenv(ENV_ZITADEL_ADMIN_PAT_DIR))
+                .orElseGet(() -> {
+                    try {
+                        final String targetPath = Paths.get(requireNonNull(ZitadelComposeContainerInitializer.class.getResource("/")).toURI())
+                                .getParent()
+                                .toAbsolutePath()
+                                .toString();
+                        final String wrapperFolder = ZitadelComposeContainerInitializer.class.getName().replace(".", "_");
+                        return String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
+                    } catch (URISyntaxException e) {
+                        LOGGER.error("Failed to read default Zitadel admin PAT directory", e);
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     /**
-     * See {@code zitadel-init-steps.yaml}
-     * @return the File containing the PAT.
+     * See {@code zitadel-init-steps.yaml}.
+     * @param zitadelAdminPatDir the directory where the admin PAT file is stored.
+     * @return the PAT file content.
      */
-    private static File getPatFile() {
-        return getFile("/tmp/zitadel-init/zitadel-admin-sa.pat");
+    private static String readZitadelAdminPat(final String zitadelAdminPatDir) {
+        try {
+            return readFileToString(getFile("/%s/zitadel-admin-sa.pat".formatted(zitadelAdminPatDir)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            LOGGER.error("Error reading Zitadel PAT file", e);
+            throw new RuntimeException("Failed to read Zitadel PAT file", e);
+        }
     }
 
 }
