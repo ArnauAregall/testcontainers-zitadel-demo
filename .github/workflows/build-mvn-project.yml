@@ -21,11 +21,5 @@ jobs:
           java-version: 21
           cache: maven
 
-#      - name: Set up ZITADEL admin PAT dir
-#        run: echo "ZITADEL_ADMIN_PAT_DIR=${RUNNER_TEMP}/zitadel-admin-pat" >> $GITHUB_ENV
-#
-#      - name: Create ZITADEL admin PAT dir
-#        run: mkdir -p "${{ env.ZITADEL_ADMIN_PAT_DIR }}"
-
       - name: Build with Maven wrapper
         run: ./mvnw clean verify
