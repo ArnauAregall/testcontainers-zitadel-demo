@@ -9,6 +9,8 @@ Tech stack:
 - Java
 - Maven (Wrapper)
 - Spring Boot
+- gRPC and Protobuf
+- [gRPC Spring Boot Client Starter](https://github.com/grpc-ecosystem/grpc-spring)
 - Testcontainers
 - Docker
 - Docker Compose
