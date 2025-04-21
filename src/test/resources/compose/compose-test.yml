@@ -1,6 +1,6 @@
 services:
   zitadel:
-    image: ghcr.io/zitadel/zitadel:v3.0.0-rc.1
+    image: ghcr.io/zitadel/zitadel:v3.0.0-rc.2
     restart: always
     networks:
       - "zitadel"
@@ -21,7 +21,7 @@ services:
       start_period: 30s
 
   zitadel-db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     restart: always
     environment:
       POSTGRES_USER: 'root'
