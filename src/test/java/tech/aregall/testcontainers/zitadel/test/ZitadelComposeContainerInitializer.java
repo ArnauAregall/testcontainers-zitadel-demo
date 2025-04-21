@@ -37,7 +37,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        final String zitadelAdminPatDir = getZitadelAdminPatDir();
+        final String zitadelAdminPatDir = getZitadelAdminPatDirPath();
         CONTAINER.withEnv(ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir);
 
         LOGGER.debug("Starting Zitadel compose container, admin PAT directory: {}", zitadelAdminPatDir);
@@ -61,31 +61,42 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
     /**
      * Get the directory where the admin PAT file is stored.
      * If the environment variable {@code ZITADEL_ADMIN_PAT_DIR} is set, it will be used.
-     * Otherwise, it will be created in the same directory as the test resources.
+     * Otherwise, it will be created.
+     * @return the directory where the admin PAT file is stored.
+     */
+    private static String getZitadelAdminPatDirPath() {
+        return Optional.ofNullable(System.getenv(ENV_ZITADEL_ADMIN_PAT_DIR)).orElse(createZitadelAdminPatDir());
+    }
+
+    /**
+     * Create a directory for the admin PAT file.
+     * <br>
+     * The directory is created under the execution directory of the generated test class (for Maven typically {@code target} dir)
+     * with write permissions.
+     * <br>
+     * Zitadel will create the admin PAT file in this directory.
+     * <br>
      * This directory is mounted in the container as a volume. See {@code compose-test.yml}.
      * @return the directory where the admin PAT file is stored.
      */
-    private static String getZitadelAdminPatDir() {
-        return Optional.ofNullable(System.getenv(ENV_ZITADEL_ADMIN_PAT_DIR))
-                .orElseGet(() -> {
-                    try {
-                        final String targetPath = Paths.get(requireNonNull(ZitadelComposeContainerInitializer.class.getResource("/")).toURI())
-                                .getParent()
-                                .toAbsolutePath()
-                                .toString();
-                        final String wrapperFolder = ZitadelComposeContainerInitializer.class.getName().replace(".", "_");
+    private static String createZitadelAdminPatDir() {
+        try {
+            final String targetPath = Paths.get(requireNonNull(ZitadelComposeContainerInitializer.class.getResource("/")).toURI())
+                    .getParent()
+                    .toAbsolutePath()
+                    .toString();
+            final String wrapperFolder = ZitadelComposeContainerInitializer.class.getName().replace(".", "_");
 
-                        final String patDir = String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
+            final String patDir = String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
 
-                        final File dir = new File(patDir);
-                        dir.mkdirs();
-                        dir.setWritable(true, false);
-                        return patDir;
-                    } catch (URISyntaxException e) {
-                        LOGGER.error("Failed to read default Zitadel admin PAT directory", e);
-                        throw new RuntimeException(e);
-                    }
-                });
+            final File dir = new File(patDir);
+            dir.mkdirs();
+            dir.setWritable(true, false);
+            return patDir;
+        } catch (URISyntaxException e) {
+            LOGGER.error("Failed to read default Zitadel admin PAT directory", e);
+            throw new RuntimeException(e);
+        }
     }
 
     /**
