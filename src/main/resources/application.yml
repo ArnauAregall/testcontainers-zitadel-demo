@@ -3,6 +3,12 @@ app:
     base-url: http://localhost:8080
     authorization-header: 'Bearer asdfg12345gjhkhogierithen_asdfg'
 
+grpc:
+  client:
+    zitadel:
+      address: 'static://localhost:8080'
+      negotiation-type: plaintext
+
 spring:
   application:
     name: testcontainers-zitadel-demo

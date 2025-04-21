@@ -108,7 +108,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
      */
     private static String readZitadelAdminPat(final String zitadelAdminPatDir) {
         try {
-            return readFileToString(getFile("/%s/zitadel-admin-sa.pat".formatted(zitadelAdminPatDir)), StandardCharsets.UTF_8);
+            return readFileToString(getFile("/%s/zitadel-admin-sa.pat".formatted(zitadelAdminPatDir)), StandardCharsets.UTF_8).trim();
         } catch (IOException e) {
             log.error("Error reading Zitadel PAT file", e);
             throw new RuntimeException("Failed to read Zitadel PAT file", e);

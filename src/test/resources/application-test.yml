@@ -3,6 +3,12 @@ app:
     base-url: 'http://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'
     authorization-header: 'Bearer ${testcontainers.zitadel.admin-pat}'
 
+grpc:
+  client:
+    zitadel:
+      address: 'static://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'
+      negotiation-type: plaintext
+
 spring:
   output:
     ansi:

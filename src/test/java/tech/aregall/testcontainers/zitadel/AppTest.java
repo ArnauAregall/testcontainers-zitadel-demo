@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestClient;
+import tech.aregall.testcontainers.zitadel.infrastructure.grpc.ZitadelGrpcClient;
 import tech.aregall.testcontainers.zitadel.test.ContainersTest;
 
 import static io.restassured.RestAssured.given;
@@ -97,6 +99,20 @@ class AppTest {
                             body -> assertThat(body.get("instance").get("name").asText()).isEqualTo("Testcontainers ZITADEL")
                     );
         }
+    }
+
+    @Nested
+    class WithGrpc {
+
+        @Autowired
+        ZitadelGrpcClient zitadelGrpcClient;
+
+        @Test
+        void test() {
+            final String instanceName = zitadelGrpcClient.getInstanceName();
+            assertThat(instanceName).isEqualTo("Testcontainers ZITADEL");
+        }
+
     }
 
 }
