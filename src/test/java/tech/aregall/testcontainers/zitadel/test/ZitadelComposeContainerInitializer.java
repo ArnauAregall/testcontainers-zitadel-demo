@@ -26,10 +26,11 @@ import static org.testcontainers.shaded.org.apache.commons.io.FileUtils.readFile
 class ZitadelComposeContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private static final String ENV_ZITADEL_ADMIN_PAT_DIR = "ZITADEL_ADMIN_PAT_DIR";
-    private static final Logger LOGGER = getLogger(ZitadelComposeContainerInitializer.class);
+
+    private static final Logger log = getLogger(ZitadelComposeContainerInitializer.class);
 
     @Container
-    private static final ComposeContainer CONTAINER = new ComposeContainer(new File("src/test/resources/compose/compose-test.yml"))
+    private static final ComposeContainer container = new ComposeContainer(new File("src/test/resources/compose/compose-test.yml"))
             .withExposedService("zitadel-db", 5432)
             .withExposedService("zitadel", 8080,
                     Wait.forHttp("/debug/healthz").forStatusCode(200).withStartupTimeout(Duration.ofSeconds(10)))
@@ -38,13 +39,13 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         final String zitadelAdminPatDir = getZitadelAdminPatDirPath();
-        CONTAINER.withEnv(ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir);
+        container.withEnv(ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir);
 
-        LOGGER.debug("Starting Zitadel compose container, admin PAT directory: {}", zitadelAdminPatDir);
-        CONTAINER.start();
+        log.debug("Starting Zitadel compose container, admin PAT directory: {}", zitadelAdminPatDir);
+        container.start();
 
-        final String zitadelHost = CONTAINER.getServiceHost("zitadel", 8080);
-        final Integer zitadelPort = CONTAINER.getServicePort("zitadel", 8080);
+        final String zitadelHost = container.getServiceHost("zitadel", 8080);
+        final Integer zitadelPort = container.getServicePort("zitadel", 8080);
         final String adminPat = readZitadelAdminPat(zitadelAdminPatDir);
 
         final Map<String, String> properties = Map.of(
@@ -53,7 +54,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
                 "testcontainers.zitadel.admin-pat", adminPat
         );
 
-        LOGGER.debug("Zitadel properties: {}", properties);
+        log.debug("Zitadel properties: {}", properties);
 
         TestPropertyValues.of(properties).applyTo(applicationContext.getEnvironment());
     }
@@ -81,12 +82,13 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
      */
     private static String createZitadelAdminPatDir() {
         try {
-            final String targetPath = Paths.get(requireNonNull(ZitadelComposeContainerInitializer.class.getResource("/")).toURI())
+            final Class<ZitadelComposeContainerInitializer> initializerClass = ZitadelComposeContainerInitializer.class;
+
+            final String targetPath = Paths.get(requireNonNull(initializerClass.getResource("/")).toURI())
                     .getParent()
                     .toAbsolutePath()
                     .toString();
-            final String wrapperFolder = ZitadelComposeContainerInitializer.class.getName().replace(".", "_");
-
+            final String wrapperFolder = initializerClass.getName().replace(".", "_");
             final String patDir = String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
 
             final File dir = new File(patDir);
@@ -94,7 +96,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
             dir.setWritable(true, false);
             return patDir;
         } catch (URISyntaxException e) {
-            LOGGER.error("Failed to read default Zitadel admin PAT directory", e);
+            log.error("Failed to read default Zitadel admin PAT directory", e);
             throw new RuntimeException(e);
         }
     }
@@ -108,7 +110,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
         try {
             return readFileToString(getFile("/%s/zitadel-admin-sa.pat".formatted(zitadelAdminPatDir)), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            LOGGER.error("Error reading Zitadel PAT file", e);
+            log.error("Error reading Zitadel PAT file", e);
             throw new RuntimeException("Failed to read Zitadel PAT file", e);
         }
     }
