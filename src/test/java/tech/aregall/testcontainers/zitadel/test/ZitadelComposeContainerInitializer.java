@@ -74,7 +74,16 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
                                 .toAbsolutePath()
                                 .toString();
                         final String wrapperFolder = ZitadelComposeContainerInitializer.class.getName().replace(".", "_");
-                        return String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
+
+                        final String patDir = String.format("%s/%s/%s-zitadel-admin-pat-dir", targetPath, wrapperFolder, System.currentTimeMillis());
+
+                        final File dir = new File(patDir);
+                        dir.mkdirs();
+                        dir.setReadable(true, false);
+                        dir.setExecutable(true, false);
+                        dir.setWritable(true, false);
+
+                        return patDir;
                     } catch (URISyntaxException e) {
                         LOGGER.error("Failed to read default Zitadel admin PAT directory", e);
                         throw new RuntimeException(e);
