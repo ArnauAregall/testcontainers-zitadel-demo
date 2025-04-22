@@ -9,6 +9,13 @@ grpc:
       address: 'static://localhost:8080'
       negotiation-type: plaintext
 
+server:
+  port: 9090
+
 spring:
   application:
     name: testcontainers-zitadel-demo
+
+logging:
+  level:
+    tech.aregall: debug
