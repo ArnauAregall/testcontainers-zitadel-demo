@@ -108,7 +108,7 @@ class AppTest {
         ZitadelGrpcClient zitadelGrpcClient;
 
         @Test
-        void test() {
+        void shouldGetZitadelInstanceName() {
             final String instanceName = zitadelGrpcClient.getInstanceName();
             assertThat(instanceName).isEqualTo("Testcontainers ZITADEL");
         }
