@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-PROTO_DIR="src/main/proto"
+PROTO_DIR="src/main/proto/external"
 
 echo "Cleaning existing repos and protos..."
 rm -rf tmp

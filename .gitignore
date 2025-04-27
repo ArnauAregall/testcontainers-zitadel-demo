@@ -37,3 +37,6 @@ build/
 
 ### temporary files ###
 tmp
+
+### external proto files ###
+src/main/proto/external
