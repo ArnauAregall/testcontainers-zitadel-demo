@@ -1,12 +1,15 @@
 app:
   zitadel:
-    base-url: http://localhost:8080
-    authorization-header: 'Bearer asdfg12345gjhkhogierithen_asdfg'
+    host: localhost
+    port: 8080
+    admin-pat: 'changeme'
+    base-url: 'http://${app.zitadel.host}:${app.zitadel.port}'
+    authorization-header: 'Bearer ${app.zitadel.admin-pat}'
 
 grpc:
   client:
     zitadel:
-      address: 'static://localhost:8080'
+      address: 'static://${app.zitadel.host}:${app.zitadel.port}'
       negotiation-type: plaintext
 
 server:

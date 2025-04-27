@@ -4,14 +4,9 @@ testcontainers:
 
 app:
   zitadel:
-    base-url: 'http://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'
-    authorization-header: 'Bearer ${testcontainers.zitadel.admin-pat}'
-
-grpc:
-  client:
-    zitadel:
-      address: 'static://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'
-      negotiation-type: plaintext
+    host: ${testcontainers.zitadel.host}
+    port: ${testcontainers.zitadel.port}
+    admin-pat: ${testcontainers.zitadel.admin-pat}
 
 spring:
   output:
