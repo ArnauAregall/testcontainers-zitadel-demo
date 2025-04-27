@@ -33,7 +33,7 @@ public class ZitadelGrpcClient {
     void onReady() {
         try {
             final var isHealthy = nonNull(adminServiceBlockingStub.healthz(Admin.HealthzRequest.newBuilder().build()));
-            log.debug("Zitadel gRPC client is healthy: {}", isHealthy);
+            log.debug("Zitadel gRPC client is healthy for instance '{}': {}", getInstanceName(), isHealthy);
         } catch (StatusRuntimeException e) {
             log.error("Failed to connect to Zitadel gRPC server", e);
         }
