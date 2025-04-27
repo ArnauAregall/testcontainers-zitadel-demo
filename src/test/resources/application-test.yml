@@ -1,3 +1,7 @@
+testcontainers:
+  zitadel:
+    image: 'ghcr.io/zitadel/zitadel:v3.0.0-rc.2'
+
 app:
   zitadel:
     base-url: 'http://${testcontainers.zitadel.host}:${testcontainers.zitadel.port}'

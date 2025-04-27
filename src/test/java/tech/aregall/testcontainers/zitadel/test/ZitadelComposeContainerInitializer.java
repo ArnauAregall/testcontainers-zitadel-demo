@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -25,6 +26,8 @@ import static org.testcontainers.shaded.org.apache.commons.io.FileUtils.readFile
 
 class ZitadelComposeContainerInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
+    private static final String ZITADEL_IMAGE_LATEST = "ghcr.io/zitadel/zitadel:latest";
+    private static final String ENV_ZITADEL_IMAGE = "ZITADEL_IMAGE";
     private static final String ENV_ZITADEL_ADMIN_PAT_DIR = "ZITADEL_ADMIN_PAT_DIR";
 
     private static final Logger log = getLogger(ZitadelComposeContainerInitializer.class);
@@ -38,10 +41,17 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
 
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
-        final String zitadelAdminPatDir = getZitadelAdminPatDirPath();
-        container.withEnv(ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir);
+        final ConfigurableEnvironment env = applicationContext.getEnvironment();
 
-        log.debug("Starting Zitadel compose container, admin PAT directory: {}", zitadelAdminPatDir);
+        final String zitadelImage = Optional.ofNullable(env.getProperty("testcontainers.zitadel.image")).orElse(ZITADEL_IMAGE_LATEST);
+        final String zitadelAdminPatDir = getZitadelAdminPatDirPath();
+
+        container.withEnv(Map.of(
+                ENV_ZITADEL_IMAGE, zitadelImage,
+                ENV_ZITADEL_ADMIN_PAT_DIR, zitadelAdminPatDir
+        ));
+
+        log.debug("Starting Zitadel compose container with image '{}', admin PAT directory: {}", zitadelImage, zitadelAdminPatDir);
         container.start();
 
         final String zitadelHost = container.getServiceHost("zitadel", 8080);
@@ -56,7 +66,7 @@ class ZitadelComposeContainerInitializer implements ApplicationContextInitialize
 
         log.debug("Zitadel properties: {}", properties);
 
-        TestPropertyValues.of(properties).applyTo(applicationContext.getEnvironment());
+        TestPropertyValues.of(properties).applyTo(env);
     }
 
     /**
