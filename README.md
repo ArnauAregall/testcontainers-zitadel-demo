@@ -16,6 +16,8 @@ Tech stack:
 - Docker Compose
 - ZITADEL
 
+The Maven build clones the ZITADEL repository to fetch the latest version of the gRPC proto files, and generates the Java classes using the Maven plugin `protobuf-maven-plugin`.
+
 ----
 ## Requirements
 
@@ -36,4 +38,19 @@ Run the following Maven command to run the application tests, which behind the s
 
 ````shell
 ./mvnw clean verify
+````
+
+----
+## Running the application locally
+
+As of now, the application only does a gRPC healthcheck against the configured ZITADEL instance. 
+It should be a good starting point to scaffold Spring Boot applications with a gRPC client for ZITADEL.
+
+Run the following command to run the application, using your own ZITADEL instance:
+
+````shell
+export APP_ZITADEL_HOST=localhost \
+       APP_ZITADEL_PORT=8080 \
+       APP_ZITADEL_ADMIN_PAT=your_admin_service_account_pat && \
+./mvnw spring-boot:run
 ````
