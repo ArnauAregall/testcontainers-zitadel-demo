@@ -12,5 +12,5 @@ FirstInstance:
     Human:
       # use the loginname root@zitadel.localhost
       Username: 'root'
-      Password: 'RootPassword1!'
+      Password: 'Testcontainers1!'
       PasswordChangeRequired: false
